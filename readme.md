@@ -16,8 +16,30 @@ Microsoft URL Rewrite Module 2.0 for IIS 7 (x64) 安裝檔
 
 https://www.microsoft.com/en-us/download/details.aspx?id=7435
 
-### web.config
-在預設網站設定反向代理 (reserve-proxy) 的網站設定檔範例
+### install.ps1
+依參數設定 reserve-proxy 的 powershell 指令碼
+
+### config-template.xml
+為網站設定 URL Rewrite 功能的 web.config 檔案範本
+
+## 設定說明
+建立 container 時設定 rewritesSetting 參數，會依設定內容建立對應的 reserve-proxy 反向代理對應
+
+rewritesSetting 設定範例
+```
+  [
+	{
+		'site':'app01',
+		'domain':'app01.txstudio.tw',
+		'rewrite':'172.19.83.203'
+	},
+	{
+		'site':'app02',
+		'domain':'app02.txstudio.tw',
+		'rewrite':'172.19.89.1'
+	}
+  ]
+```
 
 網域|內部位址
 --|--
@@ -45,8 +67,8 @@ app02.txstudio.tw|172.19.89.1
 2. 將 ARR 與 URL Rewrite 的安裝檔案複製到 Container 中
 3. 透過 msiexec 指令安裝 ARR 與 URL Rewrite 的 IIS 擴充功能
 4. 透過 appcmd.exe 指令啟用 IIS 的 proxy 服務
-5. 設定參數 config_path 並將設定的 web.config 檔案複製到 /inetpub/wwwroot/web.config
-6. 透過 ping localhost -t 指令避免 container 執行完後結束
+5. 建立 container 時執行 install.ps1 指令碼並依參數於 IIS 設定 reserve-proxy 
+
 
 ## 參考資料
 https://github.com/Microsoft/Virtualization-Documentation/tree/master/windows-container-samples/iis-arr
