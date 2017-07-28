@@ -51,16 +51,7 @@ app02.txstudio.tw|172.19.89.1
 
 ## 使用說明
 
-1. 將相關檔案與 dockerfile 放置到指定資料夾後，於資料夾目錄下執行 docker build 指令
-```
-  docker build -t iis-reserve-proxy:1 . --build-arg config_path=web.config
-```
-> config_path 參數為設定反向代理 (reserv-proxy) 設定檔案的參數，確認檔案是否存在於當下目錄中。
-
-2. 將 image 啟用為新的 container
-```
-  docker run -d --name iis-reserve-proxy-sample -p 80:80 iis-reserve-proxy:1
-```
+請參考 sample 資料夾的範例 json 檔案與 docker run
 
 ## dockerfile 步驟說明
 1. 安裝 IIS 功能
