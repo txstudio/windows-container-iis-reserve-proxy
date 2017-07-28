@@ -4,30 +4,34 @@ MAINTAINER txstudio
 
 WORKDIR /
 
-# Install IIS Web-Server
+ENV rewritesSetting "[]"
+
+# install IIS Web-Server
 RUN powershell -Command Add-WindowsFeature Web-Server
 
 RUN net stop was /y
 
-# 複製安裝檔到 image 中
+# copy install/setting file to image
 ADD ./requestRouter_amd64.msi /
 ADD ./rewrite_amd64_en-US.msi /
+ADD ./install.ps1 /
+ADD ./config-template.xml /
 
 RUN msiexec /i "requestRouter_amd64.msi" /q /log foo.log
 RUN msiexec /i "rewrite_amd64_en-US.msi" /q /log foo.log
 
-# 啟用 IIS proxy 服務
+# enable iis proxy service
 RUN @powershell C:\Windows\System32\inetsrv\appcmd.exe set config -section:proxy /enabled:true /commit:apphost
 RUN @powershell C:\Windows\System32\inetsrv\appcmd.exe set config -section:proxy /reverseRewriteHostInResponseHeaders:false /commit:apphost
 
 RUN @powershell restart-service was -force
 
-#複製 web.config 到主要網站目錄
-ARG config_path=.
-ADD ${config_path} /inetpub/wwwroot/web.config
+# remove install use package
+RUN @powershell Remove-Item "C:\requestRouter_amd64.msi"
+RUN @powershell Remove-Item "C:\rewrite_amd64_en-US.msi"
+RUN @powershell Remove-Item "C:\foo.log"
 
-#此指令是避免 container 啟用後會直接結束
-CMD ["ping","localhost","-t"]
+# use powershell script configuring rewrite url
+CMD powershell ./install.ps1 -rewritesSetting \"%rewritesSetting%\" -Verbose
 
-#請將 web.config 設定檔案放到 build 資料夾中
-#docker build -t <image_name>:<image_tag> . --build-arg config_path=web.config
+#docker build -t <image_name>:<image_tag> .
