@@ -1,0 +1,3 @@
+$json = [string](Get-Content "C:\rewrite-json.txt");
+
+docker run -d --name iis-reverse-proxy -e rewritesSetting=$json -p 80:80 iis-reverse-proxy:beta;

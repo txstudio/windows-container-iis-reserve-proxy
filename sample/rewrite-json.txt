@@ -1,0 +1,12 @@
+[
+	{
+		'site':'app01',
+		'domain':'app01.txstudio.tw',
+		'rewrite':'172.19.83.203'
+	},
+	{
+		'site':'app02',
+		'domain':'app02.txstudio.tw',
+		'rewrite':'172.19.89.1'
+	}
+]
