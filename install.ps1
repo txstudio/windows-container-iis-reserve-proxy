@@ -15,14 +15,20 @@ $path_config_template = "C:\config-template.xml"
 $path_root = "C:\inetpub\"
 $path_config = ""
 $path = ""
+$path_exist = $false;
 
 $xml_template = (Get-Content $path_config_template)
 $xml_config = ""
 
 
 # Remove "Default Web Site"
-.\appcmd.exe delete site "Default Web Site"
-Remove-Item -Recurse "C:\inetpub\wwwroot"
+$path = "C:\inetpub\wwwroot";
+$path_exist = (Test-Path $path)
+if($path_exist -eq $true)
+{
+	.\appcmd.exe delete site "Default Web Site"
+	Remove-Item -Recurse "C:\inetpub\wwwroot"
+}
 
 if ($null -ne $rewrites -And $rewrites.Length -gt 0)
 {
@@ -41,7 +47,13 @@ if ($null -ne $rewrites -And $rewrites.Length -gt 0)
 	
 		# Create Site folder
 		$path = $path_root + $rewrite.site
-		mkdir $path
+		
+		$path_exist = (Test-Path $path)
+		
+		if($path_exist -eq $false)
+		{
+			mkdir $path
+		}
         
         Write-Verbose "create site"
         Write-Verbose "-------"
@@ -53,12 +65,16 @@ if ($null -ne $rewrites -And $rewrites.Length -gt 0)
 		
 		# Configuring Rewrite Url Setting
 		$path_config = $path + "\web.config"
-		$xml_config = $xml_template.replace("{name}",$rewrite.site).replace("{ip}",$rewrite.rewrite)
 		
-		Add-Content -Path $path_config -Value $xml_config -Encoding UTF8		
-	
-		# Create Site
-		.\appcmd.exe add site /name:$site /id:$index /bindings:$bindings /physicalPath:$path		
+		if($path_exist -eq $false)
+		{	
+			$xml_config = $xml_template.replace("{name}",$rewrite.site).replace("{ip}",$rewrite.rewrite)
+			Add-Content -Path $path_config -Value $xml_config -Encoding UTF8
+			
+			# Create Site
+			.\appcmd.exe add site /name:$site /id:$index /bindings:$bindings /physicalPath:$path
+		}		
+			
 	}
 }
 
